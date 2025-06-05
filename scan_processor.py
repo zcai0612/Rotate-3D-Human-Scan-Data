@@ -12,7 +12,7 @@ from tqdm import tqdm
 from kiui.mesh import Mesh 
 from utils.render import Renderer
 from utils.camera import Camera
-from utils.mesh import normalize_vertices, normalize_vertices_with_scale
+from utils.mesh import normalize_vertices, normalize_vertices_with_center_scale
 from thirdparties.econ.lib.net.geometry import rot6d_to_rotmat
 from thirdparties.econ.lib.common.smpl_utils import (
     SMPLEstimator, 
@@ -95,12 +95,12 @@ class ScanProcessor:
         mesh = Mesh.load_obj(mesh_obj_path, albedo_path=albedo_path)
         if smpl_obj_path is not None:
             smpl_mesh = Mesh.load_obj(smpl_obj_path)
-            smpl_mesh.v, _, scale = normalize_vertices(smpl_mesh.v, bound=0.9, return_params=True)
-            mesh.v = normalize_vertices_with_scale(mesh.v, scale)
+            smpl_mesh.v, center, scale = normalize_vertices(smpl_mesh.v, bound=0.9, return_params=True)
+            mesh.v = normalize_vertices_with_center_scale(mesh.v, center, scale)
         else:
             smpl_mesh = None
-            mesh.v = normalize_vertices(mesh.v, bound=1.85/2)
-        return mesh, smpl_mesh
+            mesh.v, center, scale = normalize_vertices(mesh.v, bound=1.85/2, return_params=True)
+        return mesh, smpl_mesh, center, scale
 
     def forward(
             self, 
@@ -109,19 +109,19 @@ class ScanProcessor:
             smpl_obj_path=None, 
             render_res=512
         ):
-        mesh, smpl_mesh = self.load_mesh(mesh_obj_path, albedo_path, smpl_obj_path)
+        mesh, smpl_mesh, center, scale = self.load_mesh(mesh_obj_path, albedo_path, smpl_obj_path)
         mesh_rgb_pil = self.render_front_view(mesh, render_res)
         smpl_dict = self.estimate_smpl_dict(mesh_rgb_pil)
         rot_mat = self.get_rot_mat(smpl_dict)
         mesh, smpl_mesh = self.rotate_mesh(mesh, smpl_mesh, rot_mat)
 
-        front_view_image = self.render_front_view(mesh, render_res)
-        ortho_views_images = self.render_ortho_views(mesh, render_res)
+        # front_view_image = self.render_front_view(mesh, render_res)
+        # ortho_views_images = self.render_ortho_views(mesh, render_res)
         
         return_dict = {
             "front_view_image_raw": mesh_rgb_pil, # PIL Image_image
-            "front_view_image_processed": front_view_image, # PIL Image
-            "ortho_views_images": ortho_views_images, # list of PIL Image
+            # "front_view_image_processed": front_view_image, # PIL Image
+            # "ortho_views_images": ortho_views_images, # list of PIL Image
             "smpl_dict": smpl_dict, # dict
             "rot_mat": rot_mat, # tensor
             "mesh": mesh, # kiui.mesh
