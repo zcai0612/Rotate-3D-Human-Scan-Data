@@ -1,0 +1,16 @@
+export CUDA_VISIBLE_DEVICES=0
+
+MESH_OBJ_PATH=YOUR_MESH_OBJ_PATH
+ALBEDO_PATH=YOUR_ALBEDO_PATH
+SMPL_OBJ_PATH=YOUR_SMPL_OBJ_PATH
+OUTPUT_DIR=YOUR_OUTPUT_DIR
+ORTHO_VIEWS="0,45,90,180,270,315"
+RENDER_RES=1024
+
+python main.py \
+    --mesh_obj_path $MESH_OBJ_PATH \
+    --albedo_path $ALBEDO_PATH \
+    --smpl_obj_path $SMPL_OBJ_PATH \
+    --output_dir $OUTPUT_DIR \
+    --ortho_views $ORTHO_VIEWS \
+    --render_res $RENDER_RES
