@@ -151,6 +151,9 @@ def construct_new_mesh(vertices, faces, v_mask):
     f = torch.searchsorted(vids, faces) 
     return v, f 
 
+def normalize_vertices_with_center_scale(vertices, center, scale):
+    v = (vertices - center) * scale
+    return v 
 
 def normalize_vertices_with_scale(vertices, scale, return_params=False):
     if isinstance(vertices, torch.Tensor): 
