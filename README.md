@@ -133,7 +133,7 @@ The project utilizes models and data from several excellent works:
 bash run.sh
 ```
 
-## Results
+## Results (Before & After Process)
 
 ### Human4Dit Dataset Examples
 <p float="left">
